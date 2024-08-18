@@ -1,0 +1,99 @@
+
+<!-- version 5 -->
+
+<!-- <div class="drawing-app">
+  <canvas #canvas
+    (mousedown)="startDrawing($event)"
+    (mousemove)="draw($event)"
+    (mouseup)="stopDrawing()"
+    (mouseout)="stopDrawing()">
+  </canvas>
+
+  <div class="controls" [class.hidden]="!isToolbarVisible">
+    <div class="tool-buttons">
+      <ng-container *ngFor="let tool of tools; trackBy: trackByFn">
+        <app-tool-button
+          [toolName]="tool"
+          [isActive]="selectedTool() === tool"
+          (toolSelected)="selectTool($event)"
+        ></app-tool-button>
+      </ng-container>
+    </div>
+
+    <div class="color-options">
+      <ng-container *ngFor="let color of colors; trackBy: trackByFn">
+        <app-color-option
+          [color]="color"
+          [isSelected]="selectedColor() === color"
+          (colorSelected)="selectColor($event)"
+        ></app-color-option>
+      </ng-container>
+    </div>
+
+    <div class="additional-controls">
+      <input type="range" id="size-slider" min="1" max="30" [ngModel]="brushWidth()" (ngModelChange)="changeBrushSize($event)">
+      <input type="color" id="color-picker" [ngModel]="selectedColor()" (ngModelChange)="selectColor($event)">
+    </div>
+
+    <div class="action-buttons">
+      <button class="clear-canvas" (click)="clearCanvas()">Clear Canvas</button>
+      <button class="save-img" (click)="saveImage()">Save Image</button>
+      <button class="toggle-toolbar" (click)="toggleToolbar()">Hide Toolbar</button>
+    </div>
+  </div>
+
+  <button class="toggle-toolbar-btn" *ngIf="!isToolbarVisible" (click)="toggleToolbar()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+</div> -->
+
+<!-- version 6 -->
+
+<div class="drawing-app">
+  <canvas #canvas
+    (mousedown)="startDrawing($event)"
+    (mousemove)="draw($event)"
+    (mouseup)="stopDrawing()"
+    (mouseout)="stopDrawing()">
+  </canvas>
+
+  <div class="controls" [class.hidden]="!isToolbarVisible">
+    <div class="tool-buttons">
+      <ng-container *ngFor="let tool of tools; trackBy: trackByFn">
+        <app-tool-button
+          [toolName]="tool"
+          [isActive]="selectedTool() === tool"
+          (toolSelected)="selectTool($event)"
+        ></app-tool-button>
+      </ng-container>
+    </div>
+
+    <div class="color-options">
+      <ng-container *ngFor="let color of colors; trackBy: trackByFn">
+        <app-color-option
+          [color]="color"
+          [isSelected]="selectedColor() === color"
+          (colorSelected)="selectColor($event)"
+        ></app-color-option>
+      </ng-container>
+    </div>
+
+    <div class="additional-controls">
+      <input type="range" id="size-slider" min="1" max="30" [ngModel]="brushWidth()" (ngModelChange)="changeBrushSize($event)">
+      <input type="color" id="color-picker" [ngModel]="selectedColor()" (ngModelChange)="selectColor($event)">
+    </div>
+
+    <div class="action-buttons">
+      <button class="clear-canvas" (click)="clearCanvas()">Clear Canvas</button>
+      <button class="save-img" (click)="saveImage()">Save Image</button>
+    </div>
+
+    <button class="toggle-toolbar-btn" (click)="toggleToolbar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 15 12 9 18 15"></polyline>
+      </svg>
+    </button>
+  </div>
+</div>
