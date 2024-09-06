@@ -80,6 +80,30 @@ canvas {
   gap: 20px;
 }
 
+
+.toolbar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.toolbar-section-wrapper {
+  display: flex;
+  justify-content: flex-start; 
+  gap: 20px; 
+}
+
+
+.toolbar-section.colors {
+  flex: 1; 
+}
+
+.toolbar-section.background {
+  flex: 1; 
+}
+
+
+
 .layer-item {
   display: flex;
   align-items: center;
@@ -118,3 +142,52 @@ canvas {
 .layers-list.cdk-drop-list-dragging .layer-item:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 } 
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.action-button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.undo-redo-button {
+  background-color: #3498db;
+}
+
+.undo-redo-button:hover {
+  background-color: #2980b9;
+}
+
+.clear-button {
+  background-color: #e74c3c;
+}
+
+.clear-button:hover {
+  background-color: #c0392b;
+}
+
+.save-button {
+  background-color: #2ecc71;
+}
+
+.save-button:hover {
+  background-color: #27ae60;
+}
+

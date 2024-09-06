@@ -24,22 +24,29 @@
               </div>
             </div>
 
-      <div class="toolbar-section colors">
-        <h3>Colors</h3>
-        <div class="color-picker">
-          <input type="color" [ngModel]="selectedColor()" (ngModelChange)="selectColor($event)">
-        </div>
-        <div class="color-swatches">
-          <app-color-option *ngFor="let color of colors; trackBy: trackByFn" [color]="color" [isSelected]="selectedColor() === color" (colorSelected)="selectColor($event)"></app-color-option>
-        </div>
-      </div>
 
-      <div class="toolbar-section background">
-        <h3>Background</h3>
-        <div class="background-control">
-          <input type="color" [ngModel]="backgroundColor()" (ngModelChange)="setBackgroundColor($event)">
+      <div class="toolbar-section-wrapper">
+        <div class="toolbar-section colors">
+          <h3>Colors</h3>
+          <div class="color-picker">
+            <input type="color" [ngModel]="selectedColor()" (ngModelChange)="selectColor($event)">
+          </div>
+          <div class="color-swatches">
+            <app-color-option *ngFor="let color of colors; trackBy: trackByFn" [color]="color" [isSelected]="selectedColor() === color" (colorSelected)="selectColor($event)"></app-color-option>
+          </div>
+        </div>
+      
+        <div class="toolbar-section background">
+          <h3>Background</h3>
+          <div class="background-control">
+            <input type="color" [ngModel]="backgroundColor()" (ngModelChange)="setBackgroundColor($event)">
+          </div>
         </div>
       </div>
+      
+
+
+
 
       <div class="toolbar-section layers">
         <h3>Layers</h3>
@@ -59,69 +66,6 @@
       </div>
 
       <div class="toolbar-section actions">
-        <button (click)="undo()">Undo</button>
-        <button (click)="redo()">Redo</button>
-        <button class="clear-canvas" (click)="clearCanvas()">Clear Canvas</button>
-        <button (click)="saveImage()">Save Image</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-<!-- 
- <div class="drawing-app">
-  <canvas #canvas (mousedown)="startDrawing($event)" (mousemove)="draw($event)" (mouseup)="stopDrawing()" (mouseleave)="stopDrawing()"></canvas>
-  
-  <div class="floating-toolbar" [class.collapsed]="!isToolbarVisible" cdkDrag cdkDragBoundary=".drawing-app">
-    <div class="toolbar-header" cdkDragHandle>
-      <h2>Drawing Tools</h2>
-      <button class="toggle-toolbar-btn" (click)="toggleToolbar()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline [attr.points]="isToolbarVisible ? '6 9 12 15 18 9' : '6 15 12 9 18 15'"></polyline>
-        </svg>
-      </button>
-    </div>
-
-    <div class="toolbar-content" *ngIf="isToolbarVisible">
-      <div class="toolbar-section tools">
-        <h3>Tools</h3>
-        <div class="tool-buttons">
-          <app-tool-button *ngFor="let tool of tools" [toolName]="tool" [isActive]="selectedTool() === tool" (toolSelected)="selectTool($event)"></app-tool-button>
-        </div>
-        <div class="brush-size">
-          Brush Size: {{brushWidth()}}
-          <input type="range" [min]="1" [max]="50" [value]="brushWidth()" (input)="changeBrushSize($any($event.target).value)">
-        </div>
-      </div>
-
-      <div class="toolbar-section colors-and-background">
-        <div class="color-section">
-          <h3>Colors</h3>
-          <div class="color-picker">
-            <app-color-option *ngFor="let color of colors" [color]="color" [isSelected]="selectedColor() === color" (colorSelected)="selectColor($event)"></app-color-option>
-          </div>
-        </div>
-        <div class="background-section">
-          <h3>Background</h3>
-          <input type="color" [value]="backgroundColor()" (change)="setBackgroundColor($any($event.target).value)">
-        </div>
-      </div>
-
-      <div class="toolbar-section layers">
-        <h3>Layers</h3>
-        <div class="layers-list" cdkDropList (cdkDropListDropped)="onLayerDrop($event)">
-          <div class="layer-item" *ngFor="let layer of layers; let i = index" [class.active]="i === activeLayerIndex()" (click)="selectLayer(i)" cdkDrag>
-            {{layer.name}}
-            <button (click)="removeLayer(i)">Remove</button>
-            <div class="drag-handle" cdkDragHandle>☰</div>
-          </div>
-        </div>
-        <button (click)="addLayer()">Add Layer</button>
-      </div>
-
-      <div class="toolbar-section actions">
         <button class="action-button undo-redo-button" (click)="undo()">Undo</button>
         <button class="action-button undo-redo-button" (click)="redo()">Redo</button>
         <button class="action-button clear-button" (click)="clearCanvas()">Clear Canvas</button>
@@ -129,4 +73,4 @@
       </div>
     </div>
   </div>
-</div> -->
+</div>
