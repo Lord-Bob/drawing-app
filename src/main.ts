@@ -1,23 +1,7 @@
-// import { BrowserModule } from '@angular/platform-browser';
-// import { NgModule } from '@angular/core';
-
-// // import { AppComponent } from './app.component';
-// import { AppComponent } from './app/app.component';
-
-// @NgModule({
-//   declarations: [
-//     AppComponent
-//   ],
-//   imports: [
-//     BrowserModule
-//   ],
-//   providers: [],
-//   bootstrap: [AppComponent]
-// })
-// export class AppModule { }
 
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 bootstrapApplication(AppComponent)
   .catch(err => console.error(err));

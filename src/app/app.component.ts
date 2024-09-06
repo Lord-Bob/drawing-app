@@ -1,20 +1,51 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, signal, HostListener, TrackByFunction } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, signal, HostListener, TrackByFunction, WritableSignal } from '@angular/core';
 import { ColorOptionComponent } from './color-option/color-option.component';
 import { ToolButtonComponent } from './tool-button/tool-button.component';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+
+interface Layer {
+  id: number;
+  name: string;
+  canvas: HTMLCanvasElement;
+  preview: string;
+}
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, ToolButtonComponent, ColorOptionComponent, FormsModule],
+  imports: [RouterOutlet, CommonModule, ToolButtonComponent, ColorOptionComponent, FormsModule, DragDropModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent implements AfterViewInit {
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>
 
+  backgroundColor = signal('#ffffff');
+  layers: Layer[] = [];
+  activeLayerIndex: WritableSignal<number> = signal(0);
+  // activeLayerIndex = signal(0);
+  nextLayerId = 1;
+
+  setBackgroundColor(color: string) {
+    this.backgroundColor.set(color);
+    this.updateCanvasBackground();
+    this.saveCanvasState();
+  }
+
+  private updateCanvasBackground() {
+    this.ctx.fillStyle = this.backgroundColor();
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.redrawLayers();
+  }
+
+  private redrawLayers() {
+    this.layers.forEach(layer => {
+      this.ctx.drawImage(layer.canvas, 0, 0);
+    });
+  }
 
   trackByFn(index: number, item: string): string {
     return item;
@@ -30,28 +61,39 @@ export class AppComponent implements AfterViewInit {
   brushWidth = signal(5);
   selectedColor = signal('#000');
 
-  tools = ['brush', 'eraser', 'rectangle', 'circle', 'triangle', 'line'];
+
+  tools = ['brush', 'eraser'];
   colors = ['#000', '#fff', '#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f'];
+
+  private undoStack: {imageData: ImageData, backgroundColor: string}[] = [];
+  private redoStack: {imageData: ImageData, backgroundColor: string}[] = [];
+
 
   ngAfterViewInit() {
     this.initializeCanvas();
+    this.addLayer();
     this.resizeCanvas();
+    this.saveCanvasState();
+    this.updateLayerPreviews();
   }
+
+  ngOnInit() {
+    this.addLayer();
+  }
+
 
   private initializeCanvas() {
     this.canvas = this.canvasRef.nativeElement;
     this.ctx = this.canvas.getContext('2d')!;
     this.resizeCanvas();
 
-    // Set canvas size to match its display size
+
+
     this.canvas.width = this.canvas.offsetWidth;
     this.canvas.height = this.canvas.offsetHeight;
 
-    // Set initial canvas background to white
-    this.ctx.fillStyle = '#fff';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.updateCanvasBackground();
 
-    // Set default stroke and fill style
     this.ctx.strokeStyle = this.selectedColor();
     this.ctx.fillStyle = this.selectedColor();
     this.ctx.lineWidth = this.brushWidth();
@@ -66,27 +108,23 @@ export class AppComponent implements AfterViewInit {
 
   private resizeCanvas() {
     const canvas = this.canvasRef.nativeElement;
-    // const rect = canvas.getBoundingClientRect();
     const rect = this.canvas.getBoundingClientRect();
 
     
-    // Create a temporary canvas to hold the current drawing
     const tempCanvas = document.createElement('canvas');
     const tempCtx = tempCanvas.getContext('2d');
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
     tempCtx!.drawImage(canvas, 0, 0);
-    
-    // Resize the main canvas
-    // canvas.width = rect.width;
-    // canvas.height = rect.height;
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     
-    // Redraw the content
+
+    this.ctx = canvas.getContext('2d')!;
     this.ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, canvas.width, canvas.height);
+
+    this.setContextProperties();
     
-    // Reset the context properties
     this.ctx.strokeStyle = this.selectedColor();
     this.ctx.fillStyle = this.selectedColor();
     this.ctx.lineWidth = this.brushWidth();
@@ -94,83 +132,194 @@ export class AppComponent implements AfterViewInit {
     this.ctx.lineJoin = 'round';
   }
 
+  private setContextProperties() {
+    this.ctx.lineCap = 'round';
+    this.ctx.strokeStyle = this.selectedColor();
+    this.ctx.lineWidth = this.brushWidth();
+  }
+
   startDrawing(e: MouseEvent) {
     const rect = this.canvas.getBoundingClientRect();
     this.isDrawing = true;
     [this.lastX, this.lastY] = [e.clientX - rect.left, e.clientY - rect.top];
-  }
 
-  stopDrawing() {
-    this.isDrawing = false;
+    const activeLayer = this.layers[this.activeLayerIndex()];
+    const layerCtx = activeLayer.canvas.getContext('2d')!;
+    layerCtx.beginPath();
+    layerCtx.moveTo(this.lastX, this.lastY);
   }
 
   public draw(e: MouseEvent) {
     if (!this.isDrawing) return;
 
     const rect = this.canvas.getBoundingClientRect();
-
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    this.ctx.strokeStyle = this.selectedTool() === 'eraser' ? '#fff' : this.selectedColor();
-    this.ctx.lineWidth = this.brushWidth();
+    const activeLayer = this.layers[this.activeLayerIndex()];
+    const layerCtx = activeLayer.canvas.getContext('2d')!;
 
+    if (this.selectedTool() === 'eraser') {
+      // Eraser functionality
+      const eraserSize = this.brushWidth();
+      layerCtx.globalCompositeOperation = 'destination-out';
+      layerCtx.beginPath();
+      layerCtx.arc(x, y, eraserSize / 2, 0, Math.PI * 2);
+      layerCtx.fill();
+    } else {
+      // Normal drawing
+      layerCtx.globalCompositeOperation = 'source-over';
+      layerCtx.strokeStyle = this.selectedColor();
+      layerCtx.lineWidth = this.brushWidth();
+      layerCtx.lineCap = 'round';
+      layerCtx.lineJoin = 'round';
 
-      switch (this.selectedTool()) {
-        case 'brush':
-        case 'eraser':
-          this.drawBrush(x, y);
-          break;
-        case 'rectangle':
-          this.drawRectangle(x, y);
-          break;
-        case 'circle':
-          this.drawCircle(x, y);
-          break;
-        case 'triangle':
-          this.drawTriangle(x, y);
-          break;
-        case 'line':
-          this.drawLine(x, y);
-          break;
-      }
-      [this.lastX, this.lastY] = [x, y];
+      layerCtx.lineTo(x, y);
+      layerCtx.stroke();
     }
 
-  private drawBrush(x: number, y: number) {
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.lastX, this.lastY);
-    this.ctx.lineTo(x, y);
-    this.ctx.stroke();
+    this.updateMainCanvas();
+  
+    [this.lastX, this.lastY] = [x, y];
   }
-  private drawRectangle(x: number, y: number) {
-    const width = x - this.lastX;
-    const height = y - this.lastY;
-    this.ctx.strokeRect(this.lastX, this.lastY, width, height);
-  }
-
-  private drawCircle(x: number, y: number) {
-    const radius = Math.sqrt(Math.pow(x - this.lastX, 2) + Math.pow(y - this.lastY, 2));
-    this.ctx.beginPath();
-    this.ctx.arc(this.lastX, this.lastY, radius, 0, 2 * Math.PI);
-    this.ctx.stroke();
+  stopDrawing() {
+    if (this.isDrawing) {
+      this.isDrawing = false;
+      const activeLayer = this.layers[this.activeLayerIndex()];
+      const layerCtx = activeLayer.canvas.getContext('2d')!;
+      layerCtx.beginPath();
+      this.saveCanvasState();
+      this.updateMainCanvas();
+    }
   }
 
-  private drawTriangle(x: number, y: number) {
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.lastX, this.lastY);
-    this.ctx.lineTo(x, y);
-    this.ctx.lineTo(this.lastX * 2 - x, y);
-    this.ctx.closePath();
-    this.ctx.stroke();
+  private updateMainCanvas() {
+    this.ctx.fillStyle = this.backgroundColor();
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.layers.slice().reverse().forEach(layer => {
+      this.ctx.drawImage(layer.canvas, 0, 0);
+    });
   }
 
-  private drawLine(x: number, y: number) {
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.lastX, this.lastY);
-    this.ctx.lineTo(x, y);
-    this.ctx.stroke();
+
+  addLayer() {
+    const newCanvas = document.createElement('canvas');
+    newCanvas.width = this.canvas.width;
+    newCanvas.height = this.canvas.height;
+
+    const newLayer: Layer = {
+      id: this.nextLayerId++,
+      name: `Layer ${this.layers.length + 1}`,
+      canvas: newCanvas,
+      preview: this.createLayerPreview(newCanvas)
+    };
+
+    this.layers.unshift(newLayer);
+    this.activeLayerIndex.set(0);
+    this.updateMainCanvas();
   }
+
+  removeLayer(index: number) {
+    if (this.layers.length > 1) {
+      this.layers.splice(index, 1);
+      this.activeLayerIndex.set(Math.min(this.activeLayerIndex(), this.layers.length - 1));
+      this.updateMainCanvas();
+      this.updateLayerPreviews();
+    }
+  }
+
+  onLayerDrop(event: CdkDragDrop<Layer[]>) {
+    moveItemInArray(this.layers, event.previousIndex, event.currentIndex);
+    this.updateMainCanvas();
+    this.updateLayerPreviews();
+  }
+
+  createLayerPreview(canvas: HTMLCanvasElement): string {
+    const previewCanvas = document.createElement('canvas');
+    previewCanvas.width = 50; // Set preview size
+    previewCanvas.height = 50;
+    const previewCtx = previewCanvas.getContext('2d')!;
+    previewCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, 50, 50);
+    return previewCanvas.toDataURL();
+  }
+
+  updateLayerPreviews() {
+    this.layers.forEach(layer => {
+      const previewCanvas = document.createElement('canvas');
+      previewCanvas.width = 50; // Set preview size
+      previewCanvas.height = 50;
+      const previewCtx = previewCanvas.getContext('2d')!;
+      previewCtx.drawImage(layer.canvas, 0, 0, layer.canvas.width, layer.canvas.height, 0, 0, 50, 50);
+      layer.preview = previewCanvas.toDataURL();
+      layer.preview = this.createLayerPreview(layer.canvas);
+    });
+  }
+
+
+  selectLayer(index: number) {
+    this.activeLayerIndex.set(index);
+  }
+
+  renameLayer(layer: Layer, newName: string) {
+    layer.name = newName;
+  }
+
+  onDrop(event: CdkDragDrop<Layer[]>) {
+    moveItemInArray(this.layers, event.previousIndex, event.currentIndex);
+    this.updateMainCanvas();
+  }
+
+
+    private saveCanvasState() {
+      const compositeCanvas = document.createElement('canvas');
+      compositeCanvas.width = this.canvas.width;
+      compositeCanvas.height = this.canvas.height;
+      const compositeCtx = compositeCanvas.getContext('2d')!;
+  
+      compositeCtx.fillStyle = this.backgroundColor();
+      compositeCtx.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+  
+      this.layers.slice().reverse().forEach(layer => {
+        compositeCtx.drawImage(layer.canvas, 0, 0);
+      });
+  
+      const imageData = compositeCtx.getImageData(0, 0, compositeCanvas.width, compositeCanvas.height);
+      this.undoStack.push({imageData, backgroundColor: this.backgroundColor()});
+      this.redoStack = [];
+    }
+
+  undo() {
+    if (this.undoStack.length > 1) {
+      const currentState = this.undoStack.pop();
+      if (currentState) this.redoStack.push(currentState);
+      const previousState = this.undoStack[this.undoStack.length - 1];
+      this.restoreCanvasState(previousState);
+    }
+  }
+
+  redo() {
+    if (this.redoStack.length > 0) {
+      const nextState = this.redoStack.pop();
+      if (nextState) {
+        this.undoStack.push(nextState);
+        this.restoreCanvasState(nextState);
+      }
+    }
+  }
+
+    private restoreCanvasState(state: {imageData: ImageData, backgroundColor: string}) {
+      this.backgroundColor.set(state.backgroundColor);
+      this.ctx.putImageData(state.imageData, 0, 0);
+      
+      this.layers.forEach((layer, index) => {
+        const layerCtx = layer.canvas.getContext('2d')!;
+        layerCtx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
+        if (index === 0) {
+          layerCtx.putImageData(state.imageData, 0, 0);
+        }
+      });
+    }
+
 
   selectTool(tool: string) {
     this.selectedTool.set(tool);
@@ -185,12 +334,32 @@ export class AppComponent implements AfterViewInit {
   }
 
   clearCanvas() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.fillStyle = '#fff';
+    this.ctx.fillStyle = this.backgroundColor();
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.layers.forEach(layer => {
+      const ctx = layer.canvas.getContext('2d')!;
+      ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
+    });
+    this.saveCanvasState();
   }
 
+
   saveImage() {
+
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = this.canvas.width;
+        tempCanvas.height = this.canvas.height;
+        const tempCtx = tempCanvas.getContext('2d')!;
+    
+        tempCtx.fillStyle = this.backgroundColor();
+        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    
+        this.layers.forEach(layer => {
+          tempCtx.drawImage(layer.canvas, 0, 0);
+        });
+    
+
+
     const link = document.createElement('a');
     link.download = `drawing_${Date.now()}.png`;
     link.href = this.canvas.toDataURL();

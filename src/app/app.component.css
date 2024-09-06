@@ -1,398 +1,120 @@
 
 
-/* --------Version---------- 5 */
-
-/* :host {
-  display: block;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.drawing-app {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-}
-
-canvas {
-  flex-grow: 1;
-  width: 100%;
-  height: 100%;
-  border: 1px solid #ccc;
-  cursor: crosshair;
-}
-
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background-color: #f0f0f0;
-  transition: transform 0.3s ease-in-out;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1;
-}
-
-.controls.hidden {
-  transform: translateY(-100%);
-}
-
-.controls.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background-color: rgba(240, 240, 240, 0.9);
-  z-index: 1;
-}
-
-.tool-buttons, .color-options, .additional-controls, .action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 5px 0;
-}
-
-app-tool-button, app-color-option {
-  flex: 0 0 auto;
-}
-
-input[type="range"] {
-  width: 100%;
-  max-width: 200px;
-}
-
-button {
-  padding: 8px 16px;
-  font-size: 14px;
-  cursor: pointer;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-.clear-canvas {
-  background-color: #f44336;
-}
-
-.clear-canvas:hover {
-  background-color: #d32f2f;
-}
-
-.toggle-toolbar-btn:hover {
-  background-color: rgba(76, 175, 80, 1);
-}
-
-.toggle-toolbar-btn svg {
-  width: 24px;
-  height: 24px;
-  transition: transform 0.3s ease-in-out;
-}
-
-.controls.hidden .toggle-toolbar-btn svg {
-  transform: rotate(180deg);
-}
-
-.toggle-toolbar-btn {
-  position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 8px 16px;
-  font-size: 14px;
-  cursor: pointer;
-  background-color: rgba(76, 175, 80, 0.3);
-  color: #333;
-  border: none;
-  border-radius: 0 0 4px 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  transition: background-color 0.3s ease-in-out;
-}
-
-.toggle-toolbar-btn:hover {
-  background-color: rgba(76, 175, 80, 1); 
-} */
-
-
-/* --------Version---------- 6 */
-/* 
-:host {
-  display: block;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.drawing-app {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-}
-
-canvas {
-  flex-grow: 1;
-  width: 100%;
-  height: 100%;
-  border: 1px solid #ccc;
-  cursor: crosshair;
-}
-
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  background-color: #f0f0f0;
-  transition: transform 0.3s ease-in-out;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: auto;
-  z-index: 1;
-  border-radius: 0 0 15px 15px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.controls.hidden {
-  transform: translateY(-100%);
-}
-
-.tool-buttons, .color-options, .additional-controls, .action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin: 10px 0;
-}
-
-app-tool-button, app-color-option {
-  flex: 0 0 auto;
-}
-
-input[type="range"] {
-  width: 100%;
-  max-width: 200px;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 14px;
-  cursor: pointer;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 6px;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-.clear-canvas {
-  background-color: #f44336;
-}
-
-.clear-canvas:hover {
-  background-color: #d32f2f;
-}
-
-.toggle-toolbar-btn {
-  position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 8px 16px;
-  font-size: 14px;
-  cursor: pointer;
-  background-color: rgba(76, 175, 80, 0.3);
-  color: #333;
-  border: none;
-  border-radius: 0 0 8px 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  transition: background-color 0.3s ease-in-out;
-}
-
-.toggle-toolbar-btn:hover {
-  background-color: rgba(76, 175, 80, 1);
-}
-
-.toggle-toolbar-btn svg {
-  width: 24px;
-  height: 24px;
-  transition: transform 0.3s ease-in-out;
-}
-
-.controls.hidden .toggle-toolbar-btn svg {
-  transform: rotate(180deg);
-}
- */
-
-
- /* --------Version---------- 7 */
-
- /* Reset default margins and paddings */
-
- body, html {
+body, html {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-}
-
-:host {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  font-family: Arial, sans-serif;
 }
 
 .drawing-app {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-}
-
-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
-  cursor: crosshair;
-}
-
-/* .drawing-app {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
+  height: 100vh;
   position: relative;
-} */
+}
 
-/* 
 canvas {
-  flex-grow: 1;
   width: 100%;
   height: 100%;
-  display: block;
   cursor: crosshair;
-} */
+}
 
-.controls {
+.floating-toolbar {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  max-height: calc(100vh - 40px);
+  overflow: hidden;
+  user-select: none;
+}
+
+.floating-toolbar.collapsed {
+  width: auto;
+  height: auto;
+}
+
+.toolbar-header {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  background-color: #f0f0f0;
-  transition: transform 0.3s ease-in-out;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: auto;
-  z-index: 1;
-  border-radius: 0 0 15px 15px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.controls.hidden {
-  transform: translateY(-100%);
-}
-
-.tool-buttons, .color-options, .additional-controls, .action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin: 10px 0;
-}
-
-app-tool-button, app-color-option {
-  flex: 0 0 auto;
-}
-
-input[type="range"] {
-  width: 100%;
-  max-width: 200px;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 14px;
-  cursor: pointer;
+  padding: 10px;
   background-color: #4CAF50;
   color: white;
-  border: none;
-  border-radius: 6px;
+  border-radius: 10px 10px 0 0;
+  cursor: move;
 }
 
-button:hover {
-  background-color: #45a049;
-}
-
-.clear-canvas {
-  background-color: #f44336;
-}
-
-.clear-canvas:hover {
-  background-color: #d32f2f;
+.toolbar-header h2 {
+  margin: 0;
+  font-size: 16px;
 }
 
 .toggle-toolbar-btn {
-  position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 8px 16px;
-  font-size: 14px;
-  cursor: pointer;
-  background-color: rgba(76, 175, 80, 0.3);
-  color: #333;
+  width: 30px;
+  height: 30px;
+  background-color: transparent;
   border: none;
-  border-radius: 0 0 8px 8px;
+  color: white;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  transition: background-color 0.3s ease-in-out;
-}
-
-.toggle-toolbar-btn:hover {
-  background-color: rgba(76, 175, 80, 1);
 }
 
 .toggle-toolbar-btn svg {
-  width: 24px;
-  height: 24px;
-  transition: transform 0.3s ease-in-out;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
 }
 
-.controls.hidden .toggle-toolbar-btn svg {
-  transform: rotate(180deg);
+.toolbar-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
+
+.layer-item {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border-bottom: 1px solid #ccc;
+}
+
+.layer-preview {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+}
+
+.drag-handle {
+  cursor: move;
+  margin-left: auto;
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+              0 8px 10px 1px rgba(0, 0, 0, 0.14),
+              0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.layers-list.cdk-drop-list-dragging .layer-item:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+} 
