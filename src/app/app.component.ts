@@ -56,6 +56,7 @@ export class AppComponent implements AfterViewInit {
   private isDrawing = false;
   private lastX = 0;
   private lastY = 0;
+  private lastPressure = 1;
 
   selectedTool = signal('brush');
   brushWidth = signal(5);
@@ -85,6 +86,7 @@ export class AppComponent implements AfterViewInit {
   private initializeCanvas() {
     this.canvas = this.canvasRef.nativeElement;
     this.ctx = this.canvas.getContext('2d')!;
+    this.canvas.getContext('2d')!.lineWidth = 0.5;
     this.resizeCanvas();
 
 
@@ -138,10 +140,11 @@ export class AppComponent implements AfterViewInit {
     this.ctx.lineWidth = this.brushWidth();
   }
 
-  startDrawing(e: MouseEvent) {
-    const rect = this.canvas.getBoundingClientRect();
+  startDrawing(e: PointerEvent) {
     this.isDrawing = true;
+    const rect = this.canvas.getBoundingClientRect();
     [this.lastX, this.lastY] = [e.clientX - rect.left, e.clientY - rect.top];
+    this.lastPressure = this.getPressure(e);
 
     const activeLayer = this.layers[this.activeLayerIndex()];
     const layerCtx = activeLayer.canvas.getContext('2d')!;
@@ -149,38 +152,40 @@ export class AppComponent implements AfterViewInit {
     layerCtx.moveTo(this.lastX, this.lastY);
   }
 
-  public draw(e: MouseEvent) {
+  draw(e: PointerEvent) {
     if (!this.isDrawing) return;
 
     const rect = this.canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+    const pressure = this.getPressure(e);
 
     const activeLayer = this.layers[this.activeLayerIndex()];
     const layerCtx = activeLayer.canvas.getContext('2d')!;
 
     if (this.selectedTool() === 'eraser') {
-      // Eraser functionality
-      const eraserSize = this.brushWidth();
+      const eraserSize = this.brushWidth() * pressure;
       layerCtx.globalCompositeOperation = 'destination-out';
       layerCtx.beginPath();
       layerCtx.arc(x, y, eraserSize / 2, 0, Math.PI * 2);
       layerCtx.fill();
     } else {
-      // Normal drawing
       layerCtx.globalCompositeOperation = 'source-over';
       layerCtx.strokeStyle = this.selectedColor();
-      layerCtx.lineWidth = this.brushWidth();
+      layerCtx.lineWidth = this.brushWidth() * pressure;
       layerCtx.lineCap = 'round';
       layerCtx.lineJoin = 'round';
 
+      layerCtx.beginPath();
+      layerCtx.moveTo(this.lastX, this.lastY);
       layerCtx.lineTo(x, y);
       layerCtx.stroke();
     }
 
+
     this.updateMainCanvas();
-  
-    [this.lastX, this.lastY] = [x, y];
+
+    [this.lastX, this.lastY, this.lastPressure] = [x, y, pressure];
   }
   stopDrawing() {
     if (this.isDrawing) {
@@ -192,6 +197,22 @@ export class AppComponent implements AfterViewInit {
       this.updateMainCanvas();
     }
   }
+
+  private getPressure(e: PointerEvent): number {
+    if (e.pressure !== 0) {
+      return e.pressure;
+    }
+
+    switch (e.pointerType) {
+      case 'mouse':
+        return e.buttons === 1 ? 1 : 0;
+      case 'touch':
+        return 1;
+      default:
+        return 1;
+    }
+  }
+
 
   private updateMainCanvas() {
     this.ctx.fillStyle = this.backgroundColor();

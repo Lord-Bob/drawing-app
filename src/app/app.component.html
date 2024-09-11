@@ -1,6 +1,15 @@
 
       <div class="drawing-app">
-        <canvas #canvas (mousedown)="startDrawing($event)" (mousemove)="draw($event)" (mouseup)="stopDrawing()" (mouseleave)="stopDrawing()"></canvas>
+        <!-- <canvas #canvas (mousedown)="startDrawing($event)" (mousemove)="draw($event)" (mouseup)="stopDrawing()" (mouseleave)="stopDrawing()"></canvas> -->
+
+        <canvas #canvas 
+        (pointerdown)="startDrawing($event)" 
+        (pointermove)="draw($event)" 
+        (pointerup)="stopDrawing()" 
+        (pointerout)="stopDrawing()"
+        (pointercancel)="stopDrawing()"
+        style="touch-action: none;">
+      </canvas>
       
         <div class="floating-toolbar" [class.collapsed]="!isToolbarVisible" cdkDrag cdkDragBoundary=".drawing-app">
           <div class="toolbar-header" cdkDragHandle>
