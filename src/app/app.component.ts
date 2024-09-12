@@ -195,6 +195,7 @@ export class AppComponent implements AfterViewInit {
       layerCtx.beginPath();
       this.saveCanvasState();
       this.updateMainCanvas();
+      this.updateLayerPreviews();
     }
   }
 
@@ -243,9 +244,10 @@ export class AppComponent implements AfterViewInit {
   removeLayer(index: number) {
     if (this.layers.length > 1) {
       this.layers.splice(index, 1);
-      this.activeLayerIndex.set(Math.min(this.activeLayerIndex(), this.layers.length - 1));
+      if (this.activeLayerIndex() >= this.layers.length) {
+        this.activeLayerIndex.set(this.layers.length - 1);
+      }
       this.updateMainCanvas();
-      this.updateLayerPreviews();
     }
   }
 
@@ -255,6 +257,14 @@ export class AppComponent implements AfterViewInit {
     this.updateLayerPreviews();
   }
 
+
+  updateLayerPreviews() {
+    this.layers.forEach(layer => {
+      layer.preview = this.createLayerPreview(layer.canvas);
+    });
+  }
+
+
   createLayerPreview(canvas: HTMLCanvasElement): string {
     const previewCanvas = document.createElement('canvas');
     previewCanvas.width = 50; // Set preview size
@@ -262,18 +272,6 @@ export class AppComponent implements AfterViewInit {
     const previewCtx = previewCanvas.getContext('2d')!;
     previewCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, 50, 50);
     return previewCanvas.toDataURL();
-  }
-
-  updateLayerPreviews() {
-    this.layers.forEach(layer => {
-      const previewCanvas = document.createElement('canvas');
-      previewCanvas.width = 50; // Set preview size
-      previewCanvas.height = 50;
-      const previewCtx = previewCanvas.getContext('2d')!;
-      previewCtx.drawImage(layer.canvas, 0, 0, layer.canvas.width, layer.canvas.height, 0, 0, 50, 50);
-      layer.preview = previewCanvas.toDataURL();
-      layer.preview = this.createLayerPreview(layer.canvas);
-    });
   }
 
 

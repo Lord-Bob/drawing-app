@@ -54,24 +54,20 @@
       </div>
       
 
-
-
-
       <div class="toolbar-section layers">
         <h3>Layers</h3>
         <div class="layers-list" cdkDropList (cdkDropListDropped)="onLayerDrop($event)">
-          <div *ngFor="let layer of layers; let i = index" 
-               class="layer-item" 
+          <div class="layer-item" *ngFor="let layer of layers; let i = index" 
                [class.active]="i === activeLayerIndex()" 
-               (click)="selectLayer(i)"
+               (click)="selectLayer(i)" 
                cdkDrag>
             <img [src]="layer.preview" alt="Layer preview" class="layer-preview">
-            <input [(ngModel)]="layer.name" (click)="$event.stopPropagation()">
-            <button (click)="removeLayer(i); $event.stopPropagation()">Remove</button>
+            <span class="layer-name">{{layer.name}}</span>
+            <button (click)="removeLayer(i)" class="remove-layer-btn">Remove</button>
             <div class="drag-handle" cdkDragHandle>☰</div>
           </div>
         </div>
-        <button (click)="addLayer()">Add Layer</button>
+        <button (click)="addLayer()" class="add-layer-btn">Add Layer</button>
       </div>
 
       <div class="toolbar-section actions">
