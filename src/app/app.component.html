@@ -1,7 +1,5 @@
 
       <div class="drawing-app">
-        <!-- <canvas #canvas (mousedown)="startDrawing($event)" (mousemove)="draw($event)" (mouseup)="stopDrawing()" (mouseleave)="stopDrawing()"></canvas> -->
-
         <canvas #canvas 
         (pointerdown)="startDrawing($event)" 
         (pointermove)="draw($event)" 
@@ -10,6 +8,28 @@
         (pointercancel)="stopDrawing()"
         style="touch-action: none;">
       </canvas>
+
+      <!-- <div class="toolbar-section canvas-size">
+        <h3>Canvas Size</h3>
+        <div>
+          <label for="canvasWidth">Width:</label>
+          <input 
+            id="canvasWidth" 
+            type="number" 
+            [ngModel]="canvasWidth()" 
+            (ngModelChange)="updateCanvasSize($event, canvasHeight())"
+          >
+        </div>
+        <div>
+          <label for="canvasHeight">Height:</label>
+          <input 
+            id="canvasHeight" 
+            type="number" 
+            [ngModel]="canvasHeight()" 
+            (ngModelChange)="updateCanvasSize(canvasWidth(), $event)"
+          >
+        </div>
+      </div> -->
       
         <div class="floating-toolbar" [class.collapsed]="!isToolbarVisible" cdkDrag cdkDragBoundary=".drawing-app">
           <div class="toolbar-header" cdkDragHandle>
@@ -33,6 +53,29 @@
               </div>
             </div>
 
+            <div class="toolbar-section canvas-size">
+              <h3>Canvas Size</h3>
+              <div class="size-inputs">
+                <div>
+                  <label for="canvasWidth">Width:</label>
+                  <input 
+                    id="canvasWidth" 
+                    type="number" 
+                    [ngModel]="canvasWidth()" 
+                    (ngModelChange)="updateCanvasSize($event, canvasHeight())"
+                  >
+                </div>
+                <div>
+                  <label for="canvasHeight">Height:</label>
+                  <input 
+                    id="canvasHeight" 
+                    type="number" 
+                    [ngModel]="canvasHeight()" 
+                    (ngModelChange)="updateCanvasSize(canvasWidth(), $event)"
+                  >
+                </div>
+              </div>
+            </div>
 
       <div class="toolbar-section-wrapper">
         <div class="toolbar-section colors">
