@@ -1,12 +1,27 @@
 
 
-body, html {
+/* body, html {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
   font-family: Arial, sans-serif;
+} */
+
+body, html {
+  background-color: #333333;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+:host {
+  display: block;
+  background-color: #333333;
+  color: #ffffff;
+  min-height: 100vh;
 }
 
 .drawing-app {
@@ -17,6 +32,10 @@ body, html {
   justify-content: center;
   align-items: center;
   overflow: auto;
+
+  background-color: #333333;
+  color: #ffffff;
+  min-height: 100vh;
 }
 
 canvas {
@@ -27,7 +46,9 @@ canvas {
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: rgba(255, 255, 255, 0.9);
+  /* background-color: rgba(255, 255, 255, 0.9); */
+  background-color: #444444;
+  color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;

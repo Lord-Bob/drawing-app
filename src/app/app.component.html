@@ -1,6 +1,7 @@
 
       <div class="drawing-app">
-        <canvas #canvas 
+        <div class="canvas-container" [style.width.px]="canvasWidth()" [style.height.px]="canvasHeight()">
+        <canvas #canvas [width]="canvasWidth()" [height]="canvasHeight()"
         (pointerdown)="startDrawing($event)" 
         (pointermove)="draw($event)" 
         (pointerup)="stopDrawing()" 
@@ -8,28 +9,7 @@
         (pointercancel)="stopDrawing()"
         style="touch-action: none;">
       </canvas>
-
-      <!-- <div class="toolbar-section canvas-size">
-        <h3>Canvas Size</h3>
-        <div>
-          <label for="canvasWidth">Width:</label>
-          <input 
-            id="canvasWidth" 
-            type="number" 
-            [ngModel]="canvasWidth()" 
-            (ngModelChange)="updateCanvasSize($event, canvasHeight())"
-          >
-        </div>
-        <div>
-          <label for="canvasHeight">Height:</label>
-          <input 
-            id="canvasHeight" 
-            type="number" 
-            [ngModel]="canvasHeight()" 
-            (ngModelChange)="updateCanvasSize(canvasWidth(), $event)"
-          >
-        </div>
-      </div> -->
+      </div>
       
         <div class="floating-toolbar" [class.collapsed]="!isToolbarVisible" cdkDrag cdkDragBoundary=".drawing-app">
           <div class="toolbar-header" cdkDragHandle>
@@ -88,11 +68,14 @@
           </div>
         </div>
       
-        <div class="toolbar-section background">
-          <h3>Background</h3>
-          <div class="background-control">
-            <input type="color" [ngModel]="backgroundColor()" (ngModelChange)="setBackgroundColor($event)">
-          </div>
+
+      <div class="toolbar-section background">
+        <h3>Background</h3>
+        <div class="background-control">
+          <input type="color" 
+                 [value]="backgroundColor()" 
+                 (input)="setBackgroundColor($event)"
+                 (change)="saveBackgroundColorState()">
         </div>
       </div>
       

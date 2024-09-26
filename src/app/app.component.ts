@@ -23,6 +23,10 @@ interface Layer {
 export class AppComponent implements AfterViewInit {
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>
 
+  // Add these properties to the class
+  private readonly MIN_CANVAS_SIZE = 100;
+  private readonly MAX_CANVAS_SIZE = 3000;
+
   canvasWidth = signal(800);
   canvasHeight = signal(600);
 
@@ -32,21 +36,32 @@ export class AppComponent implements AfterViewInit {
   // activeLayerIndex = signal(0);
   nextLayerId = 1;
 
-  setBackgroundColor(color: string) {
-    this.backgroundColor.set(color);
+  setBackgroundColor(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.backgroundColor.set(input.value);
     this.updateCanvasBackground();
-    this.saveCanvasState();
+    // this.saveCanvasState();
   }
 
   private updateCanvasBackground() {
     this.ctx.fillStyle = this.backgroundColor();
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.redrawLayers();
+    // this.ctx.drawImage(tempCanvas, 0, 0);
+    this.setContextProperties();
+  }
+
+  saveBackgroundColorState() {
+    this.saveCanvasState();
   }
 
   updateCanvasSize(width: number, height: number) {
-    this.canvasWidth.set(width);
-    this.canvasHeight.set(height);
+    // Ensure the new dimensions are within the allowed range
+    const newWidth = Math.max(this.MIN_CANVAS_SIZE, Math.min(width, this.MAX_CANVAS_SIZE));
+    const newHeight = Math.max(this.MIN_CANVAS_SIZE, Math.min(height, this.MAX_CANVAS_SIZE));
+
+    this.canvasWidth.set(newWidth);
+    this.canvasHeight.set(newHeight);
     this.resizeCanvas();
     this.updateMainCanvas();
     this.updateLayerPreviews();
@@ -54,6 +69,17 @@ export class AppComponent implements AfterViewInit {
 
   private redrawLayers() {
     this.layers.forEach(layer => {
+      const layerCanvas = layer.canvas;
+      const layerCtx = layerCanvas.getContext('2d')!;
+      const tempLayerCanvas = document.createElement('canvas');
+      const tempLayerCtx = tempLayerCanvas.getContext('2d')!;
+      
+      tempLayerCanvas.width = layerCanvas.width;
+      tempLayerCanvas.height = layerCanvas.height;
+      tempLayerCtx.drawImage(layerCanvas, 0, 0);
+      
+      layerCanvas.width = this.canvasWidth();
+      layerCanvas.height = this.canvasHeight();
       this.ctx.drawImage(layer.canvas, 0, 0);
     });
   }
@@ -93,27 +119,6 @@ export class AppComponent implements AfterViewInit {
     this.addLayer();
   }
 
-
-  // private initializeCanvas() {
-  //   this.canvas = this.canvasRef.nativeElement;
-  //   this.ctx = this.canvas.getContext('2d')!;
-  //   this.canvas.getContext('2d')!.lineWidth = 0.5;
-  //   this.resizeCanvas();
-
-
-
-  //   this.canvas.width = this.canvas.offsetWidth;
-  //   this.canvas.height = this.canvas.offsetHeight;
-
-  //   this.updateCanvasBackground();
-
-  //   this.ctx.strokeStyle = this.selectedColor();
-  //   this.ctx.fillStyle = this.selectedColor();
-  //   this.ctx.lineWidth = this.brushWidth();
-  //   this.ctx.lineCap = 'round';
-  //   this.ctx.lineJoin = 'round';
-  // }
-
   private initializeCanvas() {
     this.canvas = this.canvasRef.nativeElement;
     this.ctx = this.canvas.getContext('2d')!;
@@ -134,49 +139,65 @@ export class AppComponent implements AfterViewInit {
     this.resizeCanvas();
   }
 
-  // private resizeCanvas() {
-  //   const canvas = this.canvasRef.nativeElement;
-  //   const rect = this.canvas.getBoundingClientRect();
 
-    
+  // private resizeCanvas() {
+  //   const newWidth = this.canvasWidth();
+  //   const newHeight = this.canvasHeight();
+  
+  //   this.canvas.width = newWidth;
+  //   this.canvas.height = newHeight;
+
+
+  //   const canvas = this.canvasRef.nativeElement;
+
   //   const tempCanvas = document.createElement('canvas');
-  //   const tempCtx = tempCanvas.getContext('2d');
+  //   const tempCtx = tempCanvas.getContext('2d')!;
   //   tempCanvas.width = canvas.width;
   //   tempCanvas.height = canvas.height;
-  //   tempCtx!.drawImage(canvas, 0, 0);
-  //   canvas.width = canvas.offsetWidth;
-  //   canvas.height = canvas.offsetHeight;
-    
-
+  //   tempCtx.drawImage(canvas, 0, 0);
+  
+  //   canvas.width = this.canvasWidth();
+  //   canvas.height = this.canvasHeight();
+  
   //   this.ctx = canvas.getContext('2d')!;
-  //   this.ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, canvas.width, canvas.height);
-
+  //   this.ctx.drawImage(tempCanvas, 0, 0);
+  
   //   this.setContextProperties();
-    
-  //   this.ctx.strokeStyle = this.selectedColor();
-  //   this.ctx.fillStyle = this.selectedColor();
-  //   this.ctx.lineWidth = this.brushWidth();
-  //   this.ctx.lineCap = 'round';
-  //   this.ctx.lineJoin = 'round';
   // }
 
   private resizeCanvas() {
-    const canvas = this.canvasRef.nativeElement;
+    const newWidth = this.canvasWidth();
+    const newHeight = this.canvasHeight();
+  
+    // Resize the main canvas
+    this.canvas.width = newWidth;
+    this.canvas.height = newHeight;
+  
+    // Resize each layer canvas
+    this.layers.forEach(layer => {
+      const layerCanvas = layer.canvas;
+      const layerCtx = layerCanvas.getContext('2d')!;
+      
+      // Create a temporary canvas to hold the current layer content
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d')!;
+      tempCanvas.width = layerCanvas.width;
+      tempCanvas.height = layerCanvas.height;
+      tempCtx.drawImage(layerCanvas, 0, 0);
+      
+      // Resize the layer canvas
+      layerCanvas.width = newWidth;
+      layerCanvas.height = newHeight;
+      
+      // Redraw the layer content
+      layerCtx.drawImage(tempCanvas, 0, 0);
+    });
+  
+    // Update the main canvas
+    this.updateMainCanvas();
     
-    // Create a temporary canvas to hold the current drawing
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d')!;
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    tempCtx.drawImage(canvas, 0, 0);
-  
-    // Set the canvas to the current fixed size
-    canvas.width = this.canvasWidth();
-    canvas.height = this.canvasHeight();
-  
-    // Redraw the content
-    this.ctx = canvas.getContext('2d')!;
-    this.ctx.drawImage(tempCanvas, 0, 0);
+    // Update layer previews
+    this.updateLayerPreviews();
   
     this.setContextProperties();
   }
@@ -261,32 +282,14 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
-
   private updateMainCanvas() {
     this.ctx.fillStyle = this.backgroundColor();
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    
     this.layers.slice().reverse().forEach(layer => {
       this.ctx.drawImage(layer.canvas, 0, 0);
     });
   }
-
-
-  // addLayer() {
-  //   const newCanvas = document.createElement('canvas');
-  //   newCanvas.width = this.canvas.width;
-  //   newCanvas.height = this.canvas.height;
-
-  //   const newLayer: Layer = {
-  //     id: this.nextLayerId++,
-  //     name: `Layer ${this.layers.length + 1}`,
-  //     canvas: newCanvas,
-  //     preview: this.createLayerPreview(newCanvas)
-  //   };
-
-  //   this.layers.unshift(newLayer);
-  //   this.activeLayerIndex.set(0);
-  //   this.updateMainCanvas();
-  // }
 
   addLayer() {
     const newCanvas = document.createElement('canvas');
