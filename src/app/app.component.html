@@ -1,84 +1,60 @@
 
-      <div class="drawing-app">
-        <div class="canvas-container" [style.width.px]="canvasWidth()" [style.height.px]="canvasHeight()">
-        <canvas #canvas [width]="canvasWidth()" [height]="canvasHeight()"
-        (pointerdown)="startDrawing($event)" 
-        (pointermove)="draw($event)" 
-        (pointerup)="stopDrawing()" 
-        (pointerout)="stopDrawing()"
-        (pointercancel)="stopDrawing()"
-        style="touch-action: none;">
-      </canvas>
-      </div>
-      
-        <div class="floating-toolbar" [class.collapsed]="!isToolbarVisible" cdkDrag cdkDragBoundary=".drawing-app">
-          <div class="toolbar-header" cdkDragHandle>
-            <h2>Drawing Tools</h2>
-            <button class="toggle-toolbar-btn" (click)="toggleToolbar()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline [attr.points]="isToolbarVisible ? '6 9 12 15 18 9' : '6 15 12 9 18 15'"></polyline>
-              </svg>
-            </button>
-          </div>
-      
-          <div class="toolbar-content" *ngIf="isToolbarVisible">
-            <div class="toolbar-section tools">
-              <h3>Tools</h3>
-              <div class="tool-buttons">
-                <app-tool-button *ngFor="let tool of tools" [toolName]="tool" [isActive]="selectedTool() === tool" (toolSelected)="selectTool($event)"></app-tool-button>
-              </div>
-              <div class="brush-size">
-                <label for="brushSize">Brush Size: {{brushWidth()}}</label>
-                <input type="range" id="brushSize" min="1" max="50" [ngModel]="brushWidth()" (ngModelChange)="changeBrushSize($event)">
-              </div>
-            </div>
 
-            <div class="toolbar-section canvas-size">
-              <h3>Canvas Size</h3>
-              <div class="size-inputs">
-                <div>
-                  <label for="canvasWidth">Width:</label>
-                  <input 
-                    id="canvasWidth" 
-                    type="number" 
-                    [ngModel]="canvasWidth()" 
-                    (ngModelChange)="updateCanvasSize($event, canvasHeight())"
-                  >
-                </div>
-                <div>
-                  <label for="canvasHeight">Height:</label>
-                  <input 
-                    id="canvasHeight" 
-                    type="number" 
-                    [ngModel]="canvasHeight()" 
-                    (ngModelChange)="updateCanvasSize(canvasWidth(), $event)"
-                  >
-                </div>
-              </div>
-            </div>
+ <div class="drawing-app">
+  <div class="canvas-container" [style.width.px]="canvasWidth()" [style.height.px]="canvasHeight()">
+    <canvas #canvas [width]="canvasWidth()" [height]="canvasHeight()"
+      (pointerdown)="startDrawing($event)" 
+      (pointermove)="draw($event)" 
+      (pointerup)="stopDrawing()" 
+      (pointerout)="stopDrawing()"
+      (pointercancel)="stopDrawing()"
+      style="touch-action: none;">
+    </canvas>
+  </div>
+  
+  <div class="floating-toolbar" [class.collapsed]="!isToolbarVisible" cdkDrag cdkDragBoundary=".drawing-app">
+    <div class="toolbar-header" cdkDragHandle>
+      <h2>Tools</h2>
+      <button class="toggle-toolbar-btn" (click)="toggleToolbar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline [attr.points]="isToolbarVisible ? '6 9 12 15 18 9' : '6 15 12 9 18 15'"></polyline>
+        </svg>
+      </button>
+    </div>
 
-      <div class="toolbar-section-wrapper">
-        <div class="toolbar-section colors">
-          <h3>Colors</h3>
-          <div class="color-picker">
-            <input type="color" [ngModel]="selectedColor()" (ngModelChange)="selectColor($event)">
-          </div>
-          <div class="color-swatches">
-            <app-color-option *ngFor="let color of colors; trackBy: trackByFn" [color]="color" [isSelected]="selectedColor() === color" (colorSelected)="selectColor($event)"></app-color-option>
-          </div>
+    <div class="toolbar-content" *ngIf="isToolbarVisible">
+      <div class="toolbar-section tools">
+        <div class="tool-buttons">
+          <app-tool-button *ngFor="let tool of tools" [toolName]="tool" [isActive]="selectedTool() === tool" (toolSelected)="selectTool($event)"></app-tool-button>
         </div>
-      
+        <div class="brush-size">
+          <label for="brushSize">Brush: {{brushWidth()}}</label>
+          <input type="range" id="brushSize" min="1" max="50" [ngModel]="brushWidth()" (ngModelChange)="changeBrushSize($event)">
+        </div>
+      </div>
+
+      <div class="toolbar-section">
+        <h3>Canvas Size</h3>
+        <div class="size-inputs">
+          <input id="canvasWidth" type="number" [ngModel]="canvasWidth()" (ngModelChange)="updateCanvasSize($event, canvasHeight())" placeholder="Width">
+          <input id="canvasHeight" type="number" [ngModel]="canvasHeight()" (ngModelChange)="updateCanvasSize(canvasWidth(), $event)" placeholder="Height">
+        </div>
+      </div>
+
+      <div class="toolbar-section colors">
+        <h3>Colors</h3>
+        <input type="color" [ngModel]="selectedColor()" (ngModelChange)="selectColor($event)">
+        <div class="color-swatches">
+          <app-color-option *ngFor="let color of colors; trackBy: trackByFn" [color]="color" [isSelected]="selectedColor() === color" (colorSelected)="selectColor($event)"></app-color-option>
+        </div>
+      </div>
 
       <div class="toolbar-section background">
         <h3>Background</h3>
         <div class="background-control">
-          <input type="color" 
-                 [value]="backgroundColor()" 
-                 (input)="setBackgroundColor($event)"
-                 (change)="saveBackgroundColorState()">
+          <input type="color" [value]="backgroundColor()" (input)="setBackgroundColor($event)" (change)="saveBackgroundColorState()">
         </div>
       </div>
-      
 
       <div class="toolbar-section layers">
         <h3>Layers</h3>
@@ -89,7 +65,7 @@
                cdkDrag>
             <img [src]="layer.preview" alt="Layer preview" class="layer-preview">
             <span class="layer-name">{{layer.name}}</span>
-            <button (click)="removeLayer(i)" class="remove-layer-btn">Remove</button>
+            <button (click)="removeLayer(i)" class="remove-layer-btn">X</button>
             <div class="drag-handle" cdkDragHandle>☰</div>
           </div>
         </div>
@@ -97,10 +73,12 @@
       </div>
 
       <div class="toolbar-section actions">
-        <button class="action-button undo-redo-button" (click)="undo()">Undo</button>
-        <button class="action-button undo-redo-button" (click)="redo()">Redo</button>
-        <button class="action-button clear-button" (click)="clearCanvas()">Clear Canvas</button>
-        <button class="action-button save-button" (click)="saveImage()">Save Image</button>
+        <div class="action-buttons">
+          <button class="action-button" (click)="undo()">Undo</button>
+          <button class="action-button" (click)="redo()">Redo</button>
+          <button class="action-button" (click)="clearCanvas()">Clear</button>
+          <button class="action-button" (click)="saveImage()">Save</button>
+        </div>
       </div>
     </div>
   </div>
